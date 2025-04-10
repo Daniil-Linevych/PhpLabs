@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Exhibitions{% endblock %}
+
+{% block body %}
+    <h1>Exhibitions</h1>
+
+    <a href="{{ path('exhibitions_create') }}" class="btn btn-primary mb-3">Create New Exhibition</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Author</th>
+                <th>Creation Year</th>
+                <th>Exhibition</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for exhibition in exhibitions %}
+            <tr>
+                <td>{{ exhibition.id }}</td>
+                <td>{{ exhibition.name }}</td>
+                <td>{{ exhibition.startDate.format('Y-m-d') }}</td>
+                <td>{{ exhibition.endDate.format('Y-m-d') }}</td>
+                <td>{% if exhibition.staffMembers is not empty %}
+                    {{ exhibition.staffMembers|map(staff_member => attribute(staff_member, 'fullName'))|join(', ') }}
+                    {% else %}
+                        Nobody assigned!
+                    {% endif %}
+                </td>
+                <td class="actions-column">
+                    <a href="{{ path('exhibitions_show', {'id': exhibition.id}) }}" class="btn btn-sm btn-info">
+                        <i class="bi bi-eye"></i> Show
+                    </a>
+                    <a href="{{ path('exhibitions_update', {'id': exhibition.id}) }}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">No exhibitions found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

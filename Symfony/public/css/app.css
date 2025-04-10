@@ -1,0 +1,30 @@
+.table {
+    margin-top: 20px;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.btn-sm {
+    margin-right: 5px;
+}
+
+.actions-column {
+    white-space: nowrap;
+}
+
+.buttons-container {
+    display: flex;
+    gap: 5px; 
+    align-items: center;
+}
+.buttons-container form {
+    margin: 0; 
+}
+
+.navbar-fields{
+    display: flex;
+}
+

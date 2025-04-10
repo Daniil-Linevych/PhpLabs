@@ -3,6 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ExhibitController;
+use App\Http\Controllers\ExhibitionController;
+use App\Http\Controllers\StaffController;
+use App\Http\Controllers\VisitorController;
+use App\Http\Controllers\TicketController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,3 +21,12 @@ Route::get('/products/{id}', [ProductController::class, 'show'])->name('products
 Route::get('/products/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
 Route::put('/products/{id}', [ProductController::class, 'update'])->name('products.update');
 Route::post('/products/{id}/delete', [ProductController::class, 'delete'])->name('products.delete');
+
+//museum
+Route::resource('exhibits', ExhibitController::class);
+Route::resource('exhibitions', ExhibitionController::class);
+Route::resource('staff', StaffController::class);
+Route::resource('visitors', VisitorController::class);
+Route::resource('tickets', TicketController::class);
+Route::get('tickets/{ticket}/buy', [TicketController::class, 'buy'])->name('tickets.buy');
+Route::get('tickets/{ticket}/sell', [TicketController::class, 'sell'])->name('tickets.sell');

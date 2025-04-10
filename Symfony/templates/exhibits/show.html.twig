@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Exhibit {{ exhibit.name }}{% endblock %}
+
+{% block body %}
+    <h1>Exhibit: {{ exhibit.name }}</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ exhibit.id }}</td>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <td>{{ exhibit.name }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ exhibit.description }}</td>
+            </tr>
+            <tr>
+                <th>Creation Year</th>
+                <td>{{ exhibit.creationYear }}</td>
+            </tr>
+            <tr>
+                <th>Author</th>
+                <td>{{ exhibit.author }}</td>
+            </tr>
+            <tr>
+                <th>Exhibition</th>
+                <td>{{ exhibit.exhibition ? exhibit.exhibition.name : 'Not assigned!' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    
+    <div class="buttons-container">     
+    <a href="{{ path('exhibits_index') }}" class="btn btn-outline-secondary text-decoration-none">Back to list</a>   
+    <a href="{{ path('exhibits_update', {'id': exhibit.id}) }}" class="btn btn-warning text-decoration-none" >Edit</a>
+        <form method="post" action="{{ path('exhibits_delete', {'id': exhibit.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ exhibit.id) }}">
+            <button class="btn btn-danger">Delete</button>
+        </form>
+    </div>  
+{% endblock %}

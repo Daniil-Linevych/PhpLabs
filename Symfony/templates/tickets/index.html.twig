@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tickets{% endblock %}
+
+{% block body %}
+    <h1>Ticket</h1>
+
+    <a href="{{ path('tickets_create') }}" class="btn btn-primary mb-3">Create New Ticket</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Visitor</th>
+                <th>Exhibition</th>
+                <th>Price</th>
+                <th>Purchase Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.visitor ? ticket.visitor.fullName : 'Free'}}</td>
+                <td>{{ ticket.exhibition ? ticket.exhibition.name : 'Not assigned!' }}</td>
+                <td>{{ ticket.price }}</td>
+                <td>{{ ticket.purchaseDate.format('Y-m-d H:i:s') }}</td>
+                <td class="actions-column">
+                    <a href="{{ path('tickets_show', {'id': ticket.id}) }}" class="btn btn-sm btn-info">
+                        <i class="bi bi-eye"></i> Show
+                    </a>
+                    <a href="{{ path('tickets_update', {'id': ticket.id}) }}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">No tickets found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

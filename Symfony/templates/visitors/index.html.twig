@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Visitors{% endblock %}
+
+{% block body %}
+    <h1>Visitors List</h1>
+
+    <a href="{{ path('visitors_create') }}" class="btn btn-primary mb-3">Create New Visitor</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Registration Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for visitor in visitors %}
+            <tr>
+                <td>{{ visitor.id }}</td>
+                <td>{{ visitor.fullName }}</td>
+                <td>{{ visitor.email }}</td>
+                <td>{{ visitor.phone }}</td>
+                <td>{{ visitor.registrationDate.format('Y-m-d H:i:s') }}</td>
+                <td class="actions-column">
+                    <a href="{{ path('visitors_show', {'id': visitor.id}) }}" class="btn btn-sm btn-info">
+                        <i class="bi bi-eye"></i> Show
+                    </a>
+                    <a href="{{ path('visitors_update', {'id': visitor.id}) }}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">No visitors found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

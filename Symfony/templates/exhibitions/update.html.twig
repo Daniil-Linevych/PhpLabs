@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ (app.request.attributes.get('_route') == 'exhibitions_update') ? 'Update' : 'Create' }} Exhibition{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="h4">{{ (app.request.attributes.get('_route') == 'exhibitions_update') ? 'Update' : 'Create new' }} Exhibition</h1>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+            
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        {{ form_row(form.name, {
+                            'attr': {'class': 'form-control'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                    </div>
+
+                    <div class="col-md-6">
+                            {{ form_row(form.startDate, {
+                                'attr': {'class': 'form-control', 'rows': 4},
+                                'row_attr': {'class': 'form-group mb-3'}
+                            }) }}
+                        </div>
+
+                    <div class="col-md-6">
+                        {{ form_row(form.endDate, {
+                            'attr': {'class': 'form-control'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                        </div>
+
+                    
+                    
+                    <div class="col-md-8">
+                        {{ form_row(form.staffMembers, {
+                            'attr': {'class': 'form-select'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                    </div>
+                
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        {{ (app.request.attributes.get('_route') == 'exhibitions_update') ? 'Update' : 'Save' }}
+                    </button>
+                    <a href="{{ path('exhibitions_index') }}" class="btn btn-outline-secondary">
+                        Back to list
+                    </a>
+                </div>
+                
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tickets | {{ ticket.id }}{% endblock %}
+
+{% block body %}
+    <h1>Ticket {{ ticket.id }}</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ ticket.id }}</td>
+            </tr>
+            <tr>
+                <th>Visitor</th>
+                <td>{{ ticket.visitor ? ticket.visitor.fullName : 'Free' }}</td>
+            </tr>
+            <tr>
+                <th>Exhibition</th>
+                <td>{{ ticket.exhibition.name }}</td>
+            </tr>
+            <tr>
+                <th>Pricer</th>
+                <td>{{ ticket.price }}</td>
+            </tr>
+            <tr>
+                <th>Purchase Date</th>
+                <td>{{ ticket.purchaseDate.format('Y-m-d H:i:s')  }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    
+    <div class="buttons-container">     
+        <a href="{{ path('tickets_index') }}" class="btn btn-outline-secondary text-decoration-none">Back to list</a>   
+        <a href="{{ path('tickets_update', {'id': ticket.id}) }}" class="btn btn-warning text-decoration-none" >Edit</a>
+        <form method="post" action="{{ path('tickets_delete', {'id': ticket.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ticket.id) }}">
+            <button class="btn btn-danger">Delete</button>
+        </form>
+        <a href="{{ path('tickets_buy', {'id': ticket.id}) }}" class="btn btn-info">Buy</a>
+    </div>  
+{% endblock %}

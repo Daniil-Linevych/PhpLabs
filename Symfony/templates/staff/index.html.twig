@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Staff{% endblock %}
+
+{% block body %}
+    <h1>Staff List</h1>
+
+    <a href="{{ path('staff_create') }}" class="btn btn-primary mb-3">Create New Staff Member</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Full Name</th>
+                <th>Position</th>
+                <th>Phone</th>
+                <th>Hire Date</th>
+                <th>Salary</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for staff_member in staff %}
+            <tr>
+                <td>{{ staff_member.id }}</td>
+                <td>{{ staff_member.fullName }}</td>
+                <td>{{ staff_member.position}}</td>
+                <td>{{ staff_member.phone }}</td>
+                <td>{{ staff_member.hireDate.format('Y-m-d') }}</td>
+                <td>{{ staff_member.salary }}</td>
+                <td class="actions-column">
+                    <a href="{{ path('staff_show', {'id': staff_member.id}) }}" class="btn btn-sm btn-info">
+                        <i class="bi bi-eye"></i> Show
+                    </a>
+                    <a href="{{ path('staff_update', {'id': staff_member.id}) }}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">No staff found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

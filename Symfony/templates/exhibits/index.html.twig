@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Exhibits{% endblock %}
+
+{% block body %}
+    <h1>Exhibits</h1>
+
+    <a href="{{ path('exhibits_create') }}" class="btn btn-primary mb-3">Create New Exhibit</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Author</th>
+                <th>Creation Year</th>
+                <th>Exhibition</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for exhibit in exhibits %}
+            <tr>
+                <td>{{ exhibit.id }}</td>
+                <td>{{ exhibit.name }}</td>
+                <td>{{ exhibit.author }}</td>
+                <td>{{ exhibit.creationYear }}</td>
+                <td>{{ exhibit.exhibition ? exhibit.exhibition.name : 'Not assigned!' }}</td>
+                <td class="actions-column">
+                    <a href="{{ path('exhibits_show', {'id': exhibit.id}) }}" class="btn btn-sm btn-info">
+                        <i class="bi bi-eye"></i> Show
+                    </a>
+                    <a href="{{ path('exhibits_update', {'id': exhibit.id}) }}" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil"></i> Edit
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">No exhibits found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

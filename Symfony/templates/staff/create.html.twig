@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ (app.request.attributes.get('_route') == 'staff_update') ? 'Update' : 'Create' }} Staff{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="h4">{{ (app.request.attributes.get('_route') == 'staff_update') ? 'Update' : 'Create new' }} Staff</h1>
+        </div>
+        <div class="card-body">
+            {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+            
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        {{ form_row(form.fullName, {
+                            'attr': {'class': 'form-control'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                    </div>
+                    
+                    <div class="col-6">
+                        {{ form_row(form.position, {
+                            'attr': {'class': 'form-control'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_row(form.salary, {
+                            'attr': {'class': 'form-control'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                    </div>
+
+                    <div class="col-md-6">
+                        {{ form_row(form.phone, {
+                            'attr': {'class': 'form-control'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                    </div>
+                    
+                    <div class="col-md-6">
+                        {{ form_row(form.hireDate, {
+                            'attr': {'class': 'form-control'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                    </div>
+                    
+                    <div class="col-md-8">
+                        {{ form_row(form.exhibitions, {
+                            'attr': {'class': 'form-select'},
+                            'row_attr': {'class': 'form-group mb-3'}
+                        }) }}
+                    </div>
+                
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        {{ (app.request.attributes.get('_route') == 'staff_update') ? 'Update' : 'Save' }}
+                    </button>
+                    <a href="{{ path('staff_index') }}" class="btn btn-outline-secondary">
+                        Back to list
+                    </a>
+                </div>
+                
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
