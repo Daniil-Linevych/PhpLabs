@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
-@section('title', 'Staffs')
+@section('title', 'Staff')
 
 @section('content')
-    <h1>Staffs</h1>
+    <h1>Staff</h1>
 
     <a href="{{ route('staff.create') }}" class="btn btn-primary mb-3">Create New Staff Member</a>
 
@@ -36,4 +36,6 @@
                 @endforeach
         </tbody>
     </table>
+
+    <x-pagination :paginator="$staff" />
 @endsection

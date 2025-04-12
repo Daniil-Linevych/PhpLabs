@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Exhibit;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Pagerfanta;
 use App\Repository\ExhibitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,12 +23,21 @@ final class ExhibitsController extends AbstractController
     }
 
     #[Route('/', name: 'index', methods:['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $exhibits = $this->entityManager->getRepository(Exhibit::class)->findAll();
 
+        $adapter = new ArrayAdapter($exhibits);
+        $pager = new Pagerfanta($adapter);
+
+        $perPage = $request->query->get('perPage', 3);
+        $pager->setMaxPerPage($perPage);
+        $pager->setCurrentPage($request->query->get('page', 1));
+
         return $this->render('exhibits/index.html.twig', [
             'exhibits' => $exhibits,
+            'pager' => $pager,
+            'perPage'=>$perPage,
         ]);
     }
 

@@ -135,6 +135,12 @@ class Exhibition
         return $this->staff;
     }
 
+    public function setStaffMembers($staffMembers)
+    {
+        $this->staff = $staffMembers;
+        return $this;
+    }
+
     public function getStaffMembersString(): string{
         if ($this->staff->isEmpty()){
             return 'Nobody assigned!';

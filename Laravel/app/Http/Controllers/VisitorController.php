@@ -5,13 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Visitor;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
+use App\Http\Requests\VisitorRequest;
+use App\Traits\Paginatable;
+
 
 class VisitorController extends Controller
 {
+    use Paginatable;
     
     public function index()
     {
-        $visitors = Visitor::all();
+        $visitors_query = Visitor::with('tickets');
+        $visitors = $this->paginateWithPerPage($visitors_query);
+
         return view('visitors.index', compact('visitors'));
     }
 
@@ -21,16 +27,9 @@ class VisitorController extends Controller
         return view('visitors.create', compact('isUpdate'));
     }
 
-    public function store(Request $request)
+    public function store(VisitorRequest $request)
     {
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
-            'registration_date' => 'required|date',
-        ]);
-
-        $visitor = Visitor::create($validated);
+        $visitor = Visitor::create($request->validated());
         return redirect()->route('visitors.index')->with('success', 'Visitor created successfully');
     }
 
@@ -46,24 +45,15 @@ class VisitorController extends Controller
         return view('visitors.edit', compact('visitor','isUpdate'));
     }
 
-    public function update(Request $request, Visitor $visitor)
+    public function update(VisitorRequest $request, Visitor $visitor)
     {
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
-            'registration_date' => 'required|date',
-        ]);
-
-        $visitor->update($validated);
-
+        $visitor->update($request->validated());
         return redirect()->route('visitors.index')->with('success', 'Visitor updated successfully.');
     }
 
     public function destroy(Visitor $visitor)
     {
         $visitor->delete();
-
         return redirect()->route('visitors.index')->with('success', 'Visitor deleted successfully!');
     }
 }

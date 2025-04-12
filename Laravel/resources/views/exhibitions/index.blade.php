@@ -32,4 +32,6 @@
                 @endforeach
         </tbody>
     </table>
+
+    <x-pagination :paginator="$exhibitions" :perPageOptions="[1, 2, 3]"/>
 @endsection

@@ -12,6 +12,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\StaffRepository;
 use App\Repository\ExhibitRepository;
 use App\Repository\TicketRepository;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Pagerfanta;
 
 #[Route('/exhibitions', name: 'exhibitions_')]
 final class ExhibitionsController extends AbstractController
@@ -23,18 +25,25 @@ final class ExhibitionsController extends AbstractController
     }
 
     #[Route('/', name: 'index', methods:['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $exhibitions = $this->entityManager->getRepository(Exhibition::class)->findAll();
 
+        $adapter = new ArrayAdapter($exhibitions);
+        $pager = new Pagerfanta($adapter);
+
+        $pager->setMaxPerPage($request->query->get('perPage', 2));
+        $pager->setCurrentPage($request->query->get('page', 1));
+
         return $this->render('exhibitions/index.html.twig', [
             'exhibitions' => $exhibitions,
+            'pager'=>$pager,
         ]);
     }
 
     #[Route('/create', name:'create', methods:['GET', 'POST'])]
     public function create(Request $request, StaffRepository $staffRepository): Response{
-        
+
         $exhibition = new Exhibition();
         $form = $this->createForm(ExhibitionType::class, $exhibition, [
             'staff_members' => $staffRepository->findAll()

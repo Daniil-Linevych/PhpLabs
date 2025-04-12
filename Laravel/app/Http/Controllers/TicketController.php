@@ -6,13 +6,19 @@ use App\Models\Ticket;
 use App\Models\Exhibition;
 use App\Models\Visitor;
 use Illuminate\Http\Request;
+use App\Http\Requests\TicketRequest;
+use App\Traits\Paginatable;
 
 class TicketController extends Controller
 {
     
+    use Paginatable;
+
     public function index()
     {
-        $tickets = Ticket::all();
+        $tickets_query = Ticket::query();
+        $tickets = $this->paginateWithPerPage($tickets_query);
+
         return view('tickets.index', compact('tickets'));
     }
 
@@ -24,17 +30,9 @@ class TicketController extends Controller
         return view('tickets.create', compact('exhibitions', 'isUpdate'));
     }
 
-    public function store(Request $request)
+    public function store(TicketRequest $request)
     {
-        $validated = $request->validate([
-            'price' => 'required|numeric',
-            'purchase_date' => 'required|date',
-            'visitor_id' => 'nullable|exists:visitors,id',
-            'exhibition_id' => 'required|exists:exhibitions,id',
-        ]);
-
-        $ticket = Ticket::create($validated);
-
+        $ticket = Ticket::create($request->validated());
         return redirect()->route('tickets.index')->with('success', 'Ticket created successfully');
     }
 
@@ -51,16 +49,9 @@ class TicketController extends Controller
         return view('tickets.edit', compact('ticket', 'exhibitions', 'isUpdate'));
     }
 
-    public function update(Request $request, Ticket $ticket)
+    public function update(TicketRequest $request, Ticket $ticket)
     {
-        $validated = $request->validate([
-            'price' => 'required|numeric',
-            'purchase_date' => 'required|date',
-            'exhibition_id' => 'required|exists:exhibitions,id',
-        ]);
-
-        $ticket->update($validated);
-
+        $ticket->update($request->validated());
         return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully.');
     }
 

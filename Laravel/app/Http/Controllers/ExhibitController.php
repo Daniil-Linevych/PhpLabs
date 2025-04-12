@@ -5,13 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Exhibit;
 use App\Models\Exhibition;
 use Illuminate\Http\Request;
+use App\Http\Requests\ExhibitRequest;
+use App\Traits\Paginatable;
 
 class ExhibitController extends Controller
 {
+    use Paginatable;
     
     public function index()
     {
-        $exhibits = Exhibit::all();
+        $exhibits_query = Exhibit::with('exhibition');
+        $exhibits = $this->paginateWithPerPage($exhibits_query);
+
         return view('exhibits.index', compact('exhibits'));
     }
 
@@ -23,18 +28,9 @@ class ExhibitController extends Controller
         return view('exhibits.create', compact('exhibitions', 'isUpdate'));
     }
 
-    public function store(Request $request)
+    public function store(ExhibitRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'author' => 'required|string|max:255',
-            'exhibition_id' => 'required|exists:exhibitions,id',
-            'creation_year' => 'required|integer|max:2025',
-        ]);
-
-        $exhibit = Exhibit::create($validated);
-
+        $exhibit = Exhibit::create($request->validated());
         return redirect()->route('exhibits.index')->with('success', 'Exhibit created successfully');
     }
 
@@ -51,18 +47,9 @@ class ExhibitController extends Controller
         return view('exhibits.edit', compact('exhibit', 'exhibitions', 'isUpdate'));
     }
 
-    public function update(Request $request, Exhibit $exhibit)
+    public function update(ExhibitRequest $request, Exhibit $exhibit)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'author' => 'required|string|max:255',
-            'exhibition_id' => 'required|exists:exhibitions,id',
-            'creation_year' => 'required|integer|max:2025',
-        ]);
-
-        $exhibit->update($validated);
-
+        $exhibit->update($request->validated());
         return redirect()->route('exhibits.index')->with('success', 'Exhibit updated successfully.');
     }
 

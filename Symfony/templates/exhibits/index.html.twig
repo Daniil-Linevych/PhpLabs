@@ -19,7 +19,7 @@
             </tr>
         </thead>
         <tbody>
-        {% for exhibit in exhibits %}
+        {% for exhibit in pager %}
             <tr>
                 <td>{{ exhibit.id }}</td>
                 <td>{{ exhibit.name }}</td>
@@ -42,5 +42,8 @@
         {% endfor %}
         </tbody>
     </table>
+     <div class="mt-4">
+        <twig:pagination :pager="pager"/>
+    </div>
 
 {% endblock %}

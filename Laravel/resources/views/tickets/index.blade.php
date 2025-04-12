@@ -15,6 +15,7 @@
                 <th>Purchase Date</th>
                 <th>Visitor</th>
                 <th>Exhibition</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -22,7 +23,7 @@
                     <tr>
                         <td>{{ $ticket->id }}</td>
                         <td>{{ $ticket->price }}</td>
-                        <td>{{ $ticket->purchase_date->format('Y-m-d')}}</td>
+                        <td>{{ $ticket->purchase_date?->format('Y-m-d H:i:s') ?? ''}}</td>
                         <td>{{ $ticket->visitor->full_name ?? 'N/A' }}</td>
                         <td>{{ $ticket->exhibition->name ?? 'N/A' }}</td>
                         <td>
@@ -33,4 +34,6 @@
                 @endforeach
         </tbody>
     </table>
+
+    <x-pagination :paginator="$tickets" />
 @endsection

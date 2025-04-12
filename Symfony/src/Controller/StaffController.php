@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Form\StaffType;
 use App\Repository\ExhibitionRepository;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Pagerfanta;
 
 #[Route('/staff', name: 'staff_')]
 final class StaffController extends AbstractController
@@ -21,19 +23,25 @@ final class StaffController extends AbstractController
     }
 
     #[Route('/', name: 'index', methods:['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $staff = $this->entityManager->getRepository(Staff::class)->findAll();
 
+        $adapter = new ArrayAdapter($staff);
+        $pager = new Pagerfanta($adapter);
+
+        $pager->setMaxPerPage($request->query->get('perPage', 3));
+        $pager->setCurrentPage($request->query->get('page', 1));
+
         return $this->render('staff/index.html.twig', [
             'staff' => $staff,
+            'pager'=>$pager,
         ]);
     }
 
     #[Route('/create', name:'create', methods:['GET', 'POST'])]
     public function create(Request $request, ExhibitionRepository $exhibitionRepository): Response
     {
-        //dd($exhibitionRepository->findAll());
         $staff_member = new Staff();
         $form = $this->createForm(StaffType::class, $staff_member, [
             'exhibitions' => $exhibitionRepository->findAll()

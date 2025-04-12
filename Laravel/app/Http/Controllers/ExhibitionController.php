@@ -5,21 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Exhibition;
 use App\Models\Staff;
 use Illuminate\Http\Request;
+use App\Http\Requests\ExhibitionRequest;
+use App\Traits\Paginatable;
 
 class ExhibitionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    use Paginatable;
+
     public function index()
     {
-        $exhibitions = Exhibition::all();
+        $exhibitions_query = Exhibition::with('staff');
+        $exhibitions = $this->paginateWithPerPage($exhibitions_query);
+
         return view('exhibitions.index', compact('exhibitions'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $staffMembers = Staff::all();
@@ -27,37 +27,20 @@ class ExhibitionController extends Controller
         return view('exhibitions.create', compact('staffMembers', 'isUpdate'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(ExhibitionRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'staff' => 'array',
-            'staff.*' => 'exists:staff,id',
-        ]);
-
-        $exhibition = Exhibition::create($validated);
+        $exhibition = Exhibition::create($request->validated());
         $exhibition->staff()->attach($request->staff);
 
         return redirect()->route('exhibitions.index')->with('success', 'Exhibit created successfully');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Exhibition $exhibition)
     {
         $exhibition->load(['exhibits', 'tickets', 'staff']);
         return view('exhibitions.show', compact('exhibition'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Exhibition $exhibition)
     {
         $staffMembers = Staff::all();
@@ -66,20 +49,9 @@ class ExhibitionController extends Controller
         return view('exhibitions.edit', compact('exhibition', 'staffMembers', 'isUpdate'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Exhibition $exhibition)
+    public function update(ExhibitionRequest $request, Exhibition $exhibition)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'staff' => 'required|array',
-            'staff.*' => 'exists:staff,id'
-        ]);
-
-        $exhibition->update($validated);
+        $exhibition->update($request->validated());
         $exhibition->staff()->sync($request->staff);
 
         return redirect()->route('exhibitions.index')->with('success', 'Exhibition updated successfully.');

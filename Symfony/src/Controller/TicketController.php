@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Form\TicketType;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Pagerfanta;
 
 #[Route('/tickets', name: 'tickets_')]
 final class TicketController extends AbstractController
@@ -22,12 +24,19 @@ final class TicketController extends AbstractController
     }
 
     #[Route('/', name: 'index', methods:['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $tickets = $this->entityManager->getRepository(Ticket::class)->findAll();
 
+        $adapter = new ArrayAdapter($tickets);
+        $pager = new Pagerfanta($adapter);
+
+        $pager->setMaxPerPage($request->query->get('perPage', 3));
+        $pager->setCurrentPage($request->query->get('page', 1));
+
         return $this->render('tickets/index.html.twig', [
             'tickets' => $tickets,
+            'pager'=>$pager,
         ]);
     }
 

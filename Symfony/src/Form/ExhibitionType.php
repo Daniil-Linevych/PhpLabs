@@ -10,6 +10,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class ExhibitionType extends AbstractType
 {
@@ -17,13 +18,27 @@ class ExhibitionType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'required'=>true
+                'constraints' => [
+                    new Assert\NotBlank(['message'=>'Name is required!']),
+                    new Assert\Length([
+                        'max'=>255,
+                        'maxMessage'=>'Name cannot be longer than {{limit}} charcters'
+                    ])
+                ]
             ])
             ->add('startDate', DateType::class, [
                 'widget' => 'single_text',
+                'required' => true,
             ])
             ->add('endDate', DateType::class, [
                 'widget' => 'single_text',
+                'required' => true,
+                'constraints' => [
+                    new Assert\GreaterThan([
+                        'propertyPath' => 'parent.all[startDate].data',
+                        'message' => 'End date must be after the start date.',
+                    ]),
+                ],
             ])
             ->add('staffMembers', EntityType::class, [
                 'class'=> Staff::class,
@@ -32,6 +47,12 @@ class ExhibitionType extends AbstractType
                 'placeholder' => 'Select a staff member',
                 'multiple'=>true,
                 'by_reference' => false, 
+                'constraints' => [
+                    new Assert\Count([
+                        'min' => 1,
+                        'minMessage' => 'Please select at least one staff member.',
+                    ]),
+                ],
             ])
         ;
     }

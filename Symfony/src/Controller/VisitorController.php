@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Form\VisitorType;
 use App\Repository\TicketRepository;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Pagerfanta;
 
 #[Route('/visitors', name: 'visitors_')]
 final class VisitorController extends AbstractController
@@ -21,12 +23,19 @@ final class VisitorController extends AbstractController
     }
 
     #[Route('/', name: 'index', methods:['GET'])]
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $visitors = $this->entityManager->getRepository(Visitor::class)->findAll();
 
+        $adapter = new ArrayAdapter($visitors);
+        $pager = new Pagerfanta($adapter);
+
+        $pager->setMaxPerPage($request->query->get('perPage', 3));
+        $pager->setCurrentPage($request->query->get('page', 1));
+
         return $this->render('visitors/index.html.twig', [
             'visitors' => $visitors,
+            'pager'=>$pager
         ]);
     }
 

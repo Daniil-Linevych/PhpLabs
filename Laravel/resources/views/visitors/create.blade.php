@@ -27,7 +27,7 @@
                     
                     <div class="col-12 mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
+                        <input name="email" id="email" class="form-control @error('email') is-invalid @enderror" 
                                 value="{{ old('email', $visitor->email ?? '') }}" required>
                         @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -46,7 +46,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="registration_date" class="form-label">Registration Date</label>
                         <input type="date" name="registration_date" id="registration_date" class="form-control @error('registration_date') is-invalid @enderror" 
-                               value="{{ old('registration_date', $visitor->registration_date->format('Y-m-d') ?? '') }}">
+                               value="{{ old('registration_date', $visitor->registration_date ?? '') }}">
                         @error('registration_date')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

@@ -1,0 +1,36 @@
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form method="get" class="form-inline">
+            <label for="perPage" class="me-2">Items per page:</label>
+            <select name="{{ perPageParam }}" id="perPage" class="form-select form-select-sm" onchange="this.form.submit()">
+                {% for option in perPageOptions %}
+                    <option value="{{ option }}" {{ option == pager.maxPerPage ? 'selected' }}>
+                        {{ option }}
+                    </option>
+                {% endfor %}
+            </select>
+            
+            <input type="hidden" name="{{ pageParam }}" value="{{ pager.currentPage }}">
+            
+            {% for key, value in app.request.query.all %}
+                {% if key != perPageParam and key != pageParam %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+        </form>
+    </div>
+</div>
+
+{% if pager.haveToPaginate %}
+    <div class="d-flex justify-content-{{ alignment }} my-4">
+        {{ pagerfanta(pager, template, {
+            'pageParameter': '[' ~ pageParam ~ ']',
+            'prev_message': prevText,
+            'next_message': nextText,
+            'css_container_class': cssClass,
+            'queryBuilder': {
+                (perPageParam): pager.maxPerPage
+            }
+        }) }}
+    </div>
+{% endif %}

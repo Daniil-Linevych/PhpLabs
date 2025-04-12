@@ -20,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-        {% for staff_member in staff %}
+        {% for staff_member in pager %}
             <tr>
                 <td>{{ staff_member.id }}</td>
                 <td>{{ staff_member.fullName }}</td>
@@ -44,5 +44,8 @@
         {% endfor %}
         </tbody>
     </table>
+    <div class="mt-4">
+        <twig:pagination :pager="pager"/>
+    </div>
 
 {% endblock %}
