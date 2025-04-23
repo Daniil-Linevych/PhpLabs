@@ -25,6 +25,10 @@ final class ExhibitsController extends AbstractController
     #[Route('/', name: 'index', methods:['GET'])]
     public function index(Request $request): Response
     {
+        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_WORKER')) {
+            throw $this->createAccessDeniedException();
+        }
+
         $exhibits = $this->entityManager->getRepository(Exhibit::class)->findAll();
 
         $adapter = new ArrayAdapter($exhibits);
@@ -44,6 +48,10 @@ final class ExhibitsController extends AbstractController
     #[Route('/create', name:'create', methods:['GET', 'POST'])]
     public function create(Request $request,  ExhibitionRepository $exhibitionRepository): Response
     {
+        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_WORKER')) {
+            throw $this->createAccessDeniedException();
+        }
+
         $exhibit = new Exhibit();
         $form = $this->createForm(ExhibitType::class, $exhibit, [
             'exhibitions' => $exhibitionRepository->findAll()
@@ -68,6 +76,10 @@ final class ExhibitsController extends AbstractController
     #[Route('/{id}', name:'show', methods:['GET'])]
     public function show(Exhibit $exhibit): Response{
 
+        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_WORKER')) {
+            throw $this->createAccessDeniedException();
+        }
+
         return $this->render('exhibits/show.html.twig', [
             'exhibit' => $exhibit,
         ]);
@@ -75,6 +87,10 @@ final class ExhibitsController extends AbstractController
 
     #[Route('/{id}/update', name:'update', methods:['GET', 'POST'])]
     public function update(Request $request, Exhibit $exhibit, ExhibitionRepository $exhibitionRepository):Response {
+
+        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_WORKER')) {
+            throw $this->createAccessDeniedException();
+        }
 
         $form = $this->createForm(ExhibitType::class, $exhibit, [
             'exhibitions' => $exhibitionRepository->findAll()
@@ -98,6 +114,10 @@ final class ExhibitsController extends AbstractController
 
     #[Route('/{id}/delete', name:'delete', methods:['POST'])]
     public function delete(Request $request, Exhibit $exhibit):Response {
+
+        if (!$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_WORKER')) {
+            throw $this->createAccessDeniedException();
+        }
 
         $submittedToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete'.$exhibit->getId(), $submittedToken)) {

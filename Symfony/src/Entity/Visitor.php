@@ -32,6 +32,9 @@ class Visitor
     #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy:'visitors')]
     private ?Collection $tickets;
 
+    #[ORM\OneToOne(targetEntity: User::class,  cascade: ['persist', 'remove'])]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->tickets = new ArrayCollection();
@@ -118,6 +121,18 @@ class Visitor
                 $ticket->setVisitor(null);
             }
         }
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+    
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+    
         return $this;
     }
 }

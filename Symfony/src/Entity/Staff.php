@@ -22,7 +22,7 @@ class Staff
     #[ORM\Column(length: 100)]
     private ?string $position = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20,  nullable: true)]
     private ?string $phone = null;
 
     #[ORM\Column]
@@ -33,6 +33,10 @@ class Staff
 
     #[ORM\ManyToMany(targetEntity: Exhibition::class, mappedBy:'staff')]
     private ?Collection $exhibitions;
+
+    #[ORM\OneToOne(targetEntity: User::class, cascade: ['persist', 'remove'])]
+    private ?User $user = null;
+
 
     public function __construct()
     {
@@ -141,6 +145,18 @@ class Staff
             $exhibition->removeStaff($this);
         }
 
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+    
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+    
         return $this;
     }
 }

@@ -32,6 +32,10 @@
                 <td>{{ $staff->salary }}</td>
             </tr>
             <tr>
+                <th>Email</th>
+                <td>{{ $staff->user ? $staff->user->email : 'N/A' }}</td>
+            </tr>
+            <tr>
                 <th>Exhibitions</th>
                 <td>{{ $staff->getExhibitionsString() }}</td>
             </tr>

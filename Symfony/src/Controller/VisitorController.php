@@ -25,6 +25,8 @@ final class VisitorController extends AbstractController
     #[Route('/', name: 'index', methods:['GET'])]
     public function index(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $visitors = $this->entityManager->getRepository(Visitor::class)->findAll();
 
         $adapter = new ArrayAdapter($visitors);
@@ -41,6 +43,8 @@ final class VisitorController extends AbstractController
 
     #[Route('/create', name:'create', methods:['GET', 'POST'])]
     public function create(Request $request): Response {
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
     
         $visitor = new Visitor();
         $form = $this->createForm(VisitorType::class, $visitor);
@@ -63,6 +67,8 @@ final class VisitorController extends AbstractController
     #[Route('/{id}', name:'show', methods:['GET'])]
     public function show(Visitor $visitor, TicketRepository $ticketRepository): Response{
 
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         return $this->render('visitors/show.html.twig', [
             'visitor' => $visitor,
             'tickets' => $ticketRepository->findBy(['visitor'=>$visitor])
@@ -71,6 +77,8 @@ final class VisitorController extends AbstractController
 
     #[Route('/{id}/update', name:'update', methods:['GET', 'POST'])]
     public function update(Request $request, Visitor $visitor):Response {
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $form = $this->createForm(VisitorType::class, $visitor);
         $form->handleRequest($request);
@@ -92,6 +100,8 @@ final class VisitorController extends AbstractController
 
     #[Route('/{id}/delete', name:'delete', methods:['POST'])]
     public function delete(Request $request, Visitor $visitor):Response {
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $submittedToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete'.$visitor->getId(), $submittedToken)) {

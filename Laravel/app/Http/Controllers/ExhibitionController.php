@@ -14,7 +14,28 @@ class ExhibitionController extends Controller
 
     public function index()
     {
-        $exhibitions_query = Exhibition::with('staff');
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
+        if (auth()->check() && $user->hasRole('worker')) {
+            $staff = Staff::where('user_id', auth()->id())->first();
+            
+            if ($staff) {
+                $exhibitions_query = Exhibition::whereHas('staff', function ($q) use ($staff) {
+                    $q->where('staff.id', $staff->id);
+                })->with('staff');
+            } else {
+                $exhibitions_query = Exhibition::where('id', 0); 
+            }
+        } else {
+            $exhibitions_query = Exhibition::with('staff');
+        }
+        
+
         $exhibitions = $this->paginateWithPerPage($exhibitions_query);
 
         return view('exhibitions.index', compact('exhibitions'));
@@ -22,6 +43,13 @@ class ExhibitionController extends Controller
 
     public function create()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
         $staffMembers = Staff::all();
         $isUpdate = false;
         return view('exhibitions.create', compact('staffMembers', 'isUpdate'));
@@ -29,6 +57,14 @@ class ExhibitionController extends Controller
 
     public function store(ExhibitionRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
+
         $exhibition = Exhibition::create($request->validated());
         $exhibition->staff()->attach($request->staff);
 
@@ -37,12 +73,40 @@ class ExhibitionController extends Controller
 
     public function show(Exhibition $exhibition)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
+        if($user->hasRole('worker')){
+            $worker = Staff::where('user_id', auth()->id())->first();
+            if (!$exhibition->staff->contains($worker)){
+                abort(403, 'Access denied!');
+            }
+        }
+
         $exhibition->load(['exhibits', 'tickets', 'staff']);
         return view('exhibitions.show', compact('exhibition'));
     }
 
     public function edit(Exhibition $exhibition)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
+        if($user->hasRole('worker')){
+            $worker = Staff::where('user_id', auth()->id())->first();
+            if (!$exhibition->staff->contains($worker)){
+                abort(403, 'Access denied!');
+            }
+        }
+
         $staffMembers = Staff::all();
         $exhibition->load('staff');
         $isUpdate = true;
@@ -51,6 +115,20 @@ class ExhibitionController extends Controller
 
     public function update(ExhibitionRequest $request, Exhibition $exhibition)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
+        if($user->hasRole('worker')){
+            $worker = Staff::where('user_id', auth()->id())->first();
+            if (!$exhibition->staff->contains($worker)){
+                abort(403, 'Access denied!');
+            }
+        }
+
         $exhibition->update($request->validated());
         $exhibition->staff()->sync($request->staff);
 
@@ -59,6 +137,20 @@ class ExhibitionController extends Controller
 
     public function destroy(Exhibition $exhibition)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
+        if($user->hasRole('worker')){
+            $worker = Staff::where('user_id', auth()->id())->first();
+            if (!$exhibition->staff->contains($worker)){
+                abort(403, 'Access denied!');
+            }
+        }
+
         $exhibition->staff()->detach();
         $exhibition->delete();
 

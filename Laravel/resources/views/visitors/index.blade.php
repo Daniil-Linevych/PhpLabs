@@ -24,7 +24,7 @@
                         <td>{{ $visitor->id }}</td>
                         <td>{{ $visitor->full_name }}</td>
                         <td>{{ $visitor->email}}</td>
-                        <td>{{ $visitor->phone }}</td>
+                        <td>{{ $visitor->phone ? $visitor->phone : 'N/A' }}</td>
                         <td>{{ $visitor->registration_date}}</td>
                         <td>
                             <a href="{{ route('visitors.show', $visitor) }}" class="btn btn-info btn-sm">Show</a>

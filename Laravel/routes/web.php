@@ -8,10 +8,11 @@ use App\Http\Controllers\ExhibitionController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/test', [TestController::class, 'test']);
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
@@ -30,3 +31,10 @@ Route::resource('visitors', VisitorController::class);
 Route::resource('tickets', TicketController::class);
 Route::get('tickets/{ticket}/buy', [TicketController::class, 'buy'])->name('tickets.buy');
 Route::get('tickets/{ticket}/sell', [TicketController::class, 'sell'])->name('tickets.sell');
+
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');

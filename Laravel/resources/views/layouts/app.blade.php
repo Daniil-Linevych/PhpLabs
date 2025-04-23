@@ -48,15 +48,33 @@
 <body>
     <div id="app">
         <nav class="navbar-dark bg-dark mb-4">
-            <div class="container">
-                <div class="navbar-nav flex-row">
+        <div class="container">
+        <div class="navbar-nav flex-row w-100">
+            <div class="d-flex">
+                @if(auth()->check() && auth()->user()->hasRole('admin'))
                     <a class="nav-link p-3" href="{{ route('exhibits.index') }}"><p class="fs-5 fw-normal">Exhibits</p></a>
-                    <a class="nav-link p-3 " href="{{ route('exhibitions.index') }}"><p class="fs-5 fw-normal">Exhibitions</p></a>
+                    <a class="nav-link p-3" href="{{ route('exhibitions.index') }}"><p class="fs-5 fw-normal">Exhibitions</p></a>
                     <a class="nav-link p-3" href="{{ route('staff.index') }}"><p class="fs-5 fw-normal">Staff</p></a>
                     <a class="nav-link p-3" href="{{ route('visitors.index') }}"><p class="fs-5 fw-normal">Visitors</p></a>
                     <a class="nav-link p-3" href="{{ route('tickets.index') }}"><p class="fs-5 fw-normal">Tickets</p></a>
-                </div>
+                @elseif(auth()->check() && auth()->user()->hasRole('worker'))
+                    <a class="nav-link p-3" href="{{ route('exhibits.index') }}"><p class="fs-5 fw-normal">Exhibits</p></a>
+                    <a class="nav-link p-3" href="{{ route('exhibitions.index') }}"><p class="fs-5 fw-normal">Exhibitions</p></a>
+                @else
+                    <a class="nav-link p-3" href="{{ route('tickets.index') }}"><p class="fs-5 fw-normal">Tickets</p></a>
+                @endif
             </div>
+            <div class="ms-auto d-flex">
+                @if(auth()->check())
+                    <a class="nav-link p-3" href="{{ route('profile.index') }}"><p class="fs-5 fw-normal">Profile</p></a>
+                @else
+                    <a class="nav-link p-3" href="{{ route('login') }}"><p class="fs-5 fw-normal">Login</p></a>
+                    <a class="nav-link p-3" href="{{ route('register') }}"><p class="fs-5 fw-normal">Register</p></a>
+                @endif
+            </div>
+        </div>
+    </div>
+
         </nav>
 
         <main class="py-4">

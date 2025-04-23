@@ -13,13 +13,31 @@
 <body>
     <nav class="navbar-dark bg-dark mb-4">
         <div class="container">
-            <div class="navbar-nav flex-row">
-                <a class="nav-link p-3 " href="{{ path('exhibits_index') }}"><p class="fs-5 fw-normal">Exhibits</p></a>
-                <a class="nav-link p-3" href="{{ path('exhibitions_index') }}"><p class="fs-5 fw-normal">Exhibitions</p></a>
-                <a class="nav-link p-3" href="{{ path('staff_index') }}"><p class="fs-5 fw-normal">Staff</p></a>
-                <a class="nav-link p-3" href="{{ path('visitors_index') }}"><p class="fs-5 fw-normal">Visitors</p></a>
-                <a class="nav-link p-3" href="{{ path('tickets_index') }}"><p class="fs-5 fw-normal">Tickets</p></a>
+            <div class="navbar-nav flex-row w-100">
+                <div class="d-flex">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="nav-link p-3" href="{{ path('exhibits_index') }}"><p class="fs-5 fw-normal">Exhibits</p></a>
+                    <a class="nav-link p-3" href="{{ path('exhibitions_index') }}"><p class="fs-5 fw-normal">Exhibitions</p></a>
+                    <a class="nav-link p-3" href="{{ path('staff_index') }}"><p class="fs-5 fw-normal">Staff</p></a>
+                    <a class="nav-link p-3" href="{{ path('visitors_index') }}"><p class="fs-5 fw-normal">Visitors</p></a>
+                    <a class="nav-link p-3" href="{{ path('tickets_index') }}"><p class="fs-5 fw-normal">Tickets</p></a>
+                {% elseif is_granted('ROLE_WORKER') %}
+                    <a class="nav-link p-3" href="{{ path('exhibits_index') }}"><p class="fs-5 fw-normal">Exhibits</p></a>
+                    <a class="nav-link p-3" href="{{ path('exhibitions_index') }}"><p class="fs-5 fw-normal">Exhibitions</p></a>
+                {% else %}
+                    <a class="nav-link p-3" href="{{ path('tickets_index') }}"><p class="fs-5 fw-normal">Tickets</p></a>
+                {% endif %}
+                </div>
+                <div class="ms-auto d-flex">
+                {% if is_granted('ROLE_USER') %}
+                    <a class="nav-link p-3" href="{{ path('app_profile') }}"><p class="fs-5 fw-normal">Profile</p></a>
+                {% else %}
+                    <a class="nav-link p-3" href="{{ path('app_login') }}"><p class="fs-5 fw-normal">Login</p></a>
+                    <a class="nav-link p-3" href="{{ path('app_register') }}"><p class="fs-5 fw-normal">Register</p></a>
+                {% endif %}
+                </div>
             </div>
+
         </div>
     </nav>
 

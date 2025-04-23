@@ -5,8 +5,11 @@
 @section('content')
     <h1>Tickets</h1>
 
-    <a href="{{ route('tickets.create') }}" class="btn btn-primary mb-3">Create New Ticket</a>
-
+    @auth
+        @if(auth()->user()->hasRole('admin'))
+            <a href="{{ route('tickets.create') }}" class="btn btn-primary mb-3">Create New Ticket</a>
+        @endif
+    @endauth
     <table class="table">
         <thead>
             <tr>
@@ -24,11 +27,15 @@
                         <td>{{ $ticket->id }}</td>
                         <td>{{ $ticket->price }}</td>
                         <td>{{ $ticket->purchase_date?->format('Y-m-d H:i:s') ?? ''}}</td>
-                        <td>{{ $ticket->visitor->full_name ?? 'N/A' }}</td>
+                        <td>{{ $ticket->visitor->full_name ?? 'Free' }}</td>
                         <td>{{ $ticket->exhibition->name ?? 'N/A' }}</td>
                         <td>
                             <a href="{{ route('tickets.show', $ticket) }}" class="btn btn-info btn-sm">Show</a>
-                            <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-warning btn-sm">Edit</a>
+                            @auth
+                                @if(auth()->user()->hasRole('admin'))
+                                    <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-warning btn-sm">Edit</a>
+                                @endif
+                            @endauth
                         </td>
                     </tr>
                 @endforeach

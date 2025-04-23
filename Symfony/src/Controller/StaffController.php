@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Staff;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,6 +13,7 @@ use App\Form\StaffType;
 use App\Repository\ExhibitionRepository;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/staff', name: 'staff_')]
 final class StaffController extends AbstractController
@@ -25,6 +27,8 @@ final class StaffController extends AbstractController
     #[Route('/', name: 'index', methods:['GET'])]
     public function index(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $staff = $this->entityManager->getRepository(Staff::class)->findAll();
 
         $adapter = new ArrayAdapter($staff);
@@ -40,8 +44,10 @@ final class StaffController extends AbstractController
     }
 
     #[Route('/create', name:'create', methods:['GET', 'POST'])]
-    public function create(Request $request, ExhibitionRepository $exhibitionRepository): Response
+    public function create(Request $request, ExhibitionRepository $exhibitionRepository,   UserPasswordHasherInterface $passwordHasher,): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $staff_member = new Staff();
         $form = $this->createForm(StaffType::class, $staff_member, [
             'exhibitions' => $exhibitionRepository->findAll()
@@ -50,6 +56,24 @@ final class StaffController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             
+            $user = new User();
+            $user->setFullName($form->get('fullName')->getData());
+            
+            $email = strtolower("worker".uniqid()."@gmail.com");
+            if ($this->entityManager->getRepository(User::class)->findOneBy(['email' => $email])) {
+                $email = strtolower("worker".uniqid()."@gmail.com");
+            }
+            
+            $user->setEmail($email);
+            $user->setPassword(
+                $passwordHasher->hashPassword($user, '123123')
+            );
+            $user->setRoles(['ROLE_USER', 'ROLE_WORKER']);
+
+            $this->entityManager->persist($user);
+
+            $staff_member->setUser($user);
+
             $this->entityManager->persist($staff_member);
             $this->entityManager->flush();
 
@@ -66,6 +90,8 @@ final class StaffController extends AbstractController
     #[Route('/{id}', name:'show', methods:['GET'])]
     public function show(Staff $staff_member): Response{
 
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         return $this->render('staff/show.html.twig', [
             'staff_member' => $staff_member,
         ]);
@@ -73,6 +99,8 @@ final class StaffController extends AbstractController
 
     #[Route('/{id}/update', name:'update', methods:['GET', 'POST'])]
     public function update(Request $request, Staff $staff, ExhibitionRepository $exhibitionRepository):Response {
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $form = $this->createForm(StaffType::class, $staff, [
             'exhibitions' => $exhibitionRepository->findAll()
@@ -97,6 +125,8 @@ final class StaffController extends AbstractController
 
     #[Route('/{id}/delete', name:'delete', methods:['POST'])]
     public function delete(Request $request, Staff $staff_member):Response {
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $submittedToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete'.$staff_member->getId(), $submittedToken)) {

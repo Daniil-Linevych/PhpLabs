@@ -4,9 +4,9 @@
 
 {% block body %}
     <h1>Ticket</h1>
-
-    <a href="{{ path('tickets_create') }}" class="btn btn-primary mb-3">Create New Ticket</a>
-
+    {%if is_granted('ROLE_ADMIN') %}
+        <a href="{{ path('tickets_create') }}" class="btn btn-primary mb-3">Create New Ticket</a>
+    {%endif%}
     <table class="table">
         <thead>
             <tr>
@@ -30,9 +30,11 @@
                     <a href="{{ path('tickets_show', {'id': ticket.id}) }}" class="btn btn-sm btn-info">
                         <i class="bi bi-eye"></i> Show
                     </a>
+                    {%if is_granted('ROLE_ADMIN') %}
                     <a href="{{ path('tickets_update', {'id': ticket.id}) }}" class="btn btn-sm btn-warning">
                         <i class="bi bi-pencil"></i> Edit
                     </a>
+                    {%endif%}
                 </td>
             </tr>
         {% else %}

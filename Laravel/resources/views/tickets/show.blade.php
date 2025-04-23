@@ -21,7 +21,7 @@
             </tr>
             <tr>
                 <th>Visitor</th>
-                <td>{{ $ticket->visitor->full_name ?? 'N/A' }}</td>
+                <td>{{ $ticket->visitor->full_name ?? 'Free' }}</td>
             </tr>
             <tr>
                 <th>Exhibition</th>
@@ -32,12 +32,16 @@
 
     <div class="buttons-container">     
         <a href="{{ route('tickets.index') }}" class="btn btn-outline-secondary">Back to list</a>
-        <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-warning">Edit</a>
-        <form action="{{ route('tickets.destroy', $ticket) }}" method="POST" class="d-inline">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-            <a href="{{ route('tickets.buy', $ticket) }}" class="btn btn-info">Buy</a>
-        </form>                
+        @auth
+            @if(auth()->user()->hasRole('admin'))
+                <a href="{{ route('tickets.edit', $ticket) }}" class="btn btn-warning">Edit</a>
+                <form action="{{ route('tickets.destroy', $ticket) }}" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            @endif
+            <a href="{{ route('tickets.buy', $ticket) }}" class="btn btn-info">Buy</a>   
+        @endauth         
     </div>  
 @endsection

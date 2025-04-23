@@ -21,7 +21,7 @@
             </tr>
             <tr>
                 <th>Creation Year</th>
-                <td>{{ $visitor->phone }}</td>
+                <td>{{ $visitor->phone ? $visitor->phone : 'N/A' }}</td>
             </tr>
             <tr>
                 <th>Registration Date</th>

@@ -25,7 +25,7 @@
                 <td>{{ visitor.fullName }}</td>
                 <td>{{ visitor.email }}</td>
                 <td>{{ visitor.phone }}</td>
-                <td>{{ visitor.registrationDate.format('Y-m-d H:i:s') }}</td>
+                <td>{{ visitor.registrationDate.format('Y-m-d') }}</td>
                 <td class="actions-column">
                     <a href="{{ path('visitors_show', {'id': visitor.id}) }}" class="btn btn-sm btn-info">
                         <i class="bi bi-eye"></i> Show

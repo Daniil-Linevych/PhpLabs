@@ -26,6 +26,8 @@ final class TicketController extends AbstractController
     #[Route('/', name: 'index', methods:['GET'])]
     public function index(Request $request): Response
     {
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
         $tickets = $this->entityManager->getRepository(Ticket::class)->findAll();
 
         $adapter = new ArrayAdapter($tickets);
@@ -42,6 +44,9 @@ final class TicketController extends AbstractController
 
     #[Route('/create', name:'create', methods:['GET', 'POST'])]
     public function create(Request $request, ExhibitionRepository $exhibitionRepository): Response{
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $ticket = new Ticket();
         $form = $this->createForm(TicketType::class, $ticket, [
             'exhibitions' => $exhibitionRepository->findAll()
@@ -65,6 +70,8 @@ final class TicketController extends AbstractController
     #[Route('/{id}', name:'show', methods:['GET'])]
     public function show(Ticket $ticket): Response{
 
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
         return $this->render('tickets/show.html.twig', [
             'ticket' => $ticket,
         ]);
@@ -72,6 +79,8 @@ final class TicketController extends AbstractController
 
     #[Route('/{id}/update', name:'update', methods:['GET', 'POST'])]
     public function update(Request $request, Ticket $ticket, ExhibitionRepository $exhibitionRepository):Response {
+
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $form = $this->createForm(TicketType::class, $ticket, [
             'exhibitions' => $exhibitionRepository->findAll()
@@ -96,6 +105,8 @@ final class TicketController extends AbstractController
     #[Route('/{id}/delete', name:'delete', methods:['POST'])]
     public function delete(Request $request, Ticket $ticket):Response {
 
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $submittedToken = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('delete'.$ticket->getId(), $submittedToken)) {
             throw $this->createAccessDeniedException('Invalid CSRF token');
@@ -112,7 +123,12 @@ final class TicketController extends AbstractController
     #[Route('/{id}/buy', name:'buy', methods:['GET'])]
     public function buy(Ticket $ticket):Response {
 
-        $id_visitor = 1;
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        $user = $this->getUser();
+        $visitor_by_user = $this->entityManager->getRepository(Visitor::class)->findOneBy(['user'=>$user]);
+
+        $id_visitor = $visitor_by_user->getId();
         $visitor = $this->entityManager->getRepository(Visitor::class)->find($id_visitor);
 
         $ticket->setVisitor($visitor);
@@ -126,6 +142,9 @@ final class TicketController extends AbstractController
 
     #[Route('/{id}/sell', name:'sell', methods:['GET', 'POST'])]
     public function sell(Ticket $ticket):Response {
+
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
         $id = $ticket->getVisitor()->getId();
         $ticket->setVisitor(null);
     
@@ -133,7 +152,7 @@ final class TicketController extends AbstractController
 
         $this->addFlash('success', 'Ticket sold successfully!');
 
-        return $this->redirectToRoute('visitors_show', [
+        return $this->redirectToRoute('app_profile', [
             'id'=> $id
         ]);
     }

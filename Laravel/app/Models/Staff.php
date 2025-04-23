@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Staff extends Model
 {
@@ -16,7 +17,8 @@ class Staff extends Model
         'position',
         'phone',
         'salary',
-        'hire_date'
+        'hire_date',
+        'user_id'
     ];
 
     protected $casts = [
@@ -40,6 +42,10 @@ class Staff extends Model
         }
         $names = $this->exhibitions->map(fn($exhibition) => $exhibition->getName())->toArray();
         return implode(', ', $names);
+    }
+
+    public function user(): BelongsTo{
+        return $this->belongsTo(User::class);
     }
 
     

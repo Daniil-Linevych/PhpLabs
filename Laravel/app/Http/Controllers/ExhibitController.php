@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Exhibit;
 use App\Models\Exhibition;
-use Illuminate\Http\Request;
 use App\Http\Requests\ExhibitRequest;
 use App\Traits\Paginatable;
 
@@ -14,6 +13,13 @@ class ExhibitController extends Controller
     
     public function index()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
         $exhibits_query = Exhibit::with('exhibition');
         $exhibits = $this->paginateWithPerPage($exhibits_query);
 
@@ -22,6 +28,13 @@ class ExhibitController extends Controller
 
     public function create()
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
         $exhibitions = Exhibition::all();
         $isUpdate = false;
 
@@ -30,17 +43,38 @@ class ExhibitController extends Controller
 
     public function store(ExhibitRequest $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
         $exhibit = Exhibit::create($request->validated());
         return redirect()->route('exhibits.index')->with('success', 'Exhibit created successfully');
     }
 
     public function show(Exhibit $exhibit)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
         return view('exhibits.show', compact('exhibit'));
     }
 
     public function edit(Exhibit $exhibit)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
         $exhibitions = Exhibition::all();
         $isUpdate = true;
 
@@ -49,12 +83,26 @@ class ExhibitController extends Controller
 
     public function update(ExhibitRequest $request, Exhibit $exhibit)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
         $exhibit->update($request->validated());
         return redirect()->route('exhibits.index')->with('success', 'Exhibit updated successfully.');
     }
 
     public function destroy(Exhibit $exhibit)
     {
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if(!$user || $user->hasRole('user')){
+            abort(403, 'Access denied!');
+        }
+
         $exhibit->delete();
 
         return redirect()->route('exhibits.index')->with('success', 'Exhibit deleted successfully!');

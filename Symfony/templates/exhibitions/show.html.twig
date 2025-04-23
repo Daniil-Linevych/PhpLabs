@@ -52,7 +52,7 @@
                     {% for exhibit in exhibits %}
                         <tr>
                             <td>{{ exhibit.id }}</td>
-                            <td>{{ exhibit.name }}</td>
+                            <td><a href="{{ path('exhibits_show', {'id': exhibit.id}) }}" class="text-decoration-none text-dark">{{ exhibit.name }}</a></td>  
                         </tr>
                     {% endfor %}
                 </tbody>
