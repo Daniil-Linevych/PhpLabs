@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Exhibition;
 use App\Entity\Staff;
 use App\Form\ExhibitionType;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,16 +34,26 @@ final class ExhibitionsController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
+        $qb = $this->entityManager->getRepository(Exhibition::class)->createQueryBuilder('e');
+
         if ($this->isGranted('ROLE_WORKER')){
             $user = $this->getUser();
 
             $staff = $this->entityManager->getRepository(Staff::class)->findOneBy(['user'=>$user]);
             $exhibitions = $staff->getExhibitions()->toArray();
+            $adapter = new ArrayAdapter($exhibitions);
         } else {
             $exhibitions = $this->entityManager->getRepository(Exhibition::class)->findAll();
+            $this->applyFilters($qb, [
+                'name' => $request->query->get('name'),
+                'start_date' => $request->query->get('start_date'),
+                'end_date' => $request->query->get('end_date'),
+                'staff' => $request->query->get('staff'),
+            ]);
+            $adapter = new QueryAdapter($qb);
         } 
 
-        $adapter = new ArrayAdapter($exhibitions);
+        
         $pager = new Pagerfanta($adapter);
 
         $pager->setMaxPerPage($request->query->get('perPage', 2));
@@ -170,4 +182,80 @@ final class ExhibitionsController extends AbstractController
 
         return $this->redirectToRoute('exhibitions_index');
     }
+
+    private function applyFilters(QueryBuilder $qb, array $filters): void
+{
+    foreach ($filters as $field => $value) {
+        if (empty($value)) {
+            continue;
+        }
+
+        $allowedFields = ['name', 'start_date', 'end_date', 'staff'];
+        if (!in_array($field, $allowedFields)) {
+            continue;
+        }
+
+        switch ($field) {
+            case 'start_date':
+            case 'end_date':
+                $this->applyDateFilter($qb, $field, $value);
+                break;
+                
+            case 'staff':
+                $this->applyStaffFilter($qb, $value);
+                break;
+                
+            default:
+                $qb->andWhere($qb->expr()->like("e.$field", ":$field"))
+                   ->setParameter($field, '%'.$value.'%');
+        }
+    }
+}
+
+private function applyDateFilter(QueryBuilder $qb, string $field, $value): void
+{
+    try {
+        if (str_contains($value, '..')) {
+            [$startDate, $endDate] = explode('..', $value, 2);
+            
+            $start = new \DateTime(trim($startDate));
+            $end = new \DateTime(trim($endDate));
+            
+            $qb->andWhere("e.$field BETWEEN :startDate AND :endDate")
+               ->setParameter('startDate', $start->format('Y-m-d 00:00:00'))
+               ->setParameter('endDate', $end->format('Y-m-d 23:59:59'));
+            return;
+        }
+
+        if (preg_match('/^(>|<|>=|<=)\s*(.*)/', $value, $matches)) {
+            $operator = $matches[1];
+            $dateValue = new \DateTime(trim($matches[2]));
+            
+            $qb->andWhere("e.$field {$operator} :date")
+               ->setParameter('date', $dateValue->format('Y-m-d H:i:s'));
+            return;
+        }
+
+        $date = new \DateTime($value);
+        $qb->andWhere("e.$field BETWEEN :dateStart AND :dateEnd")
+           ->setParameter('dateStart', $date->format('Y-m-d 00:00:00'))
+           ->setParameter('dateEnd', $date->format('Y-m-d 23:59:59'));
+
+    } catch (\Exception $e) {
+        return;
+    }
+}
+
+private function applyStaffFilter(QueryBuilder $qb, $value): void
+{
+    
+        $qb->join('e.staff', 's')
+           ->andWhere(
+               $qb->expr()->orX(
+                   $qb->expr()->like('s.fullName', ':staffName'),
+               )
+           )
+           ->setParameter('staffName', '%'.$value.'%');
+    
+}
 }

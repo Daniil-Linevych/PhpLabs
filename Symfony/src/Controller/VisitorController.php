@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Visitor;
 use Doctrine\ORM\EntityManagerInterface;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,16 +29,22 @@ final class VisitorController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        $visitors = $this->entityManager->getRepository(Visitor::class)->findAll();
+        $qb = $this->entityManager->getRepository(Visitor::class)->createQueryBuilder('e');
 
-        $adapter = new ArrayAdapter($visitors);
+        $this->applyFilters($qb, [
+            'name' => $request->query->get('name'),
+            'email' => $request->query->get('email'),
+            'phone' => $request->query->get('phone'),
+            'date' => $request->query->get('date'),
+        ]);
+
+        $adapter = new QueryAdapter($qb);
         $pager = new Pagerfanta($adapter);
 
         $pager->setMaxPerPage($request->query->get('perPage', 3));
         $pager->setCurrentPage($request->query->get('page', 1));
 
         return $this->render('visitors/index.html.twig', [
-            'visitors' => $visitors,
             'pager'=>$pager
         ]);
     }
@@ -114,6 +122,62 @@ final class VisitorController extends AbstractController
         $this->addFlash('success', 'Visitor deleted successfully!');
 
         return $this->redirectToRoute('visitors_index');
+    }
+    private function applyFilters(QueryBuilder $qb, array $filters): void
+    {
+        foreach ($filters as $field => $value) {
+            if (empty($value)) {
+                continue;
+            }
+
+            $allowedFields = ['name', 'author', 'creationYear', 'exhibition']; 
+            if (!in_array($field, $allowedFields)) {
+                continue;
+            }
+
+            switch ($field) {
+                case 'date':
+                    $this->applyDateFilter($qb, $value);
+                    
+                default:
+                    $qb->andWhere($qb->expr()->like("e.$field", ":$field"))
+                       ->setParameter($field, '%'.$value.'%');
+            }
+        }
+    }
+
+    private function applyDateFilter(QueryBuilder $qb, $value): void
+    {
+        try {
+            if (str_contains($value, '..')) {
+                [$startDate, $endDate] = explode('..', $value, 2);
+                
+                $start = new \DateTime(trim($startDate));
+                $end = new \DateTime(trim($endDate));
+                
+                $qb->andWhere('e.registration_date BETWEEN :startDate AND :endDate')
+                ->setParameter('startDate', $start->format('Y-m-d 00:00:00'))
+                ->setParameter('endDate', $end->format('Y-m-d 23:59:59'));
+                return;
+            }
+
+            if (preg_match('/^(>|<|>=|<=)\s*(.*)/', $value, $matches)) {
+                $operator = $matches[1];
+                $dateValue = new \DateTime(trim($matches[2]));
+                
+                $qb->andWhere("e.registration_date {$operator} :date")
+                ->setParameter('date', $dateValue->format('Y-m-d H:i:s'));
+                return;
+            }
+
+            $date = new \DateTime($value);
+            $qb->andWhere('e.date BETWEEN :dateStart AND :dateEnd')
+            ->setParameter('dateStart', $date->format('Y-m-d 00:00:00'))
+            ->setParameter('dateEnd', $date->format('Y-m-d 23:59:59'));
+
+        } catch (\Exception $e) {
+            return; 
+        }
     }
 }
 

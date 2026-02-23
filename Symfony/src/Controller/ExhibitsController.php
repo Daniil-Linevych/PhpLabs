@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Exhibit;
 use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\Pagerfanta;
 use App\Repository\ExhibitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,9 +31,17 @@ final class ExhibitsController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $exhibits = $this->entityManager->getRepository(Exhibit::class)->findAll();
+        $qb = $this->entityManager->getRepository(Exhibit::class)->createQueryBuilder('e');
 
-        $adapter = new ArrayAdapter($exhibits);
+        $this->applyFilters($qb, [
+            'name' => $request->query->get('name'),
+            'author' => $request->query->get('author'),
+            'creationYear' => $request->query->get('creationYear'),
+            'exhibition' => $request->query->get('exhibition'),
+        ]);
+    
+        $adapter = new QueryAdapter($qb);
+        
         $pager = new Pagerfanta($adapter);
 
         $perPage = $request->query->get('perPage', 3);
@@ -39,7 +49,6 @@ final class ExhibitsController extends AbstractController
         $pager->setCurrentPage($request->query->get('page', 1));
 
         return $this->render('exhibits/index.html.twig', [
-            'exhibits' => $exhibits,
             'pager' => $pager,
             'perPage'=>$perPage,
         ]);
@@ -130,5 +139,63 @@ final class ExhibitsController extends AbstractController
         $this->addFlash('success', 'Exhibit deleted successfully!');
 
         return $this->redirectToRoute('exhibits_index');
+    }
+
+    private function applyFilters(QueryBuilder $qb, array $filters): void
+    {
+        foreach ($filters as $field => $value) {
+            if (empty($value)) {
+                continue;
+            }
+
+            $allowedFields = ['name', 'author', 'creationYear', 'exhibition']; 
+            if (!in_array($field, $allowedFields)) {
+                continue;
+            }
+
+            switch ($field) {
+                case 'creationYear':
+                    $this->applyYearFilter($qb, $value);
+                    break;
+                    
+                case 'exhibition':
+                    $this->applyExhibitionFilter($qb, $value);
+                    break;
+                case 'date':
+                    $this->applyDateFilter($qb, $value);
+                    
+                default:
+                    $qb->andWhere($qb->expr()->like("e.$field", ":$field"))
+                       ->setParameter($field, '%'.$value.'%');
+            }
+        }
+    }
+
+    private function applyYearFilter(QueryBuilder $qb, string $value):void{
+
+        $operator = '=';
+        $yearValue = $value;
+        
+        if (preg_match('/^(>|<|>=|<=|=)?\s*(\d+)$/', $value, $matches)) {
+            $operator = $matches[1] ?: '=';
+            $yearValue = (int)$matches[2];
+        }
+        
+        $qb->andWhere("e.creationYear {$operator} :creationYear")
+        ->setParameter('creationYear', $yearValue);
+    }
+
+    private function applyExhibitionFilter(QueryBuilder $qb, $value): void
+    {
+        $qb->join('e.exhibition', 'exh')
+            ->andWhere('exh.name LIKE :exhibitionName')
+            ->setParameter('exhibitionName', '%'.$value.'%');
+    }
+
+    private function applyDateFilter(QueryBuilder $qb, $value): void
+    {
+            $date = new \DateTime($value);
+            $qb->andWhere("e.date = :date")
+            ->setParameter('date', $date);
     }
 }

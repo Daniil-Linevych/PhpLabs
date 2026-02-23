@@ -63,7 +63,6 @@ final class ProductController extends AbstractController
 
             self::$products[self::$nextId] = $newProduct;
             self::$nextId++;
-
             return $this->redirectToRoute('product_index');
         }
 

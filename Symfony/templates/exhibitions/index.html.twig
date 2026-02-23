@@ -7,14 +7,42 @@
 
     <a href="{{ path('exhibitions_create') }}" class="btn btn-primary mb-3">Create New Exhibition</a>
 
+    <form method="get">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <input type="text" name="name" class="form-control"
+                    value="{{ app.request.query.get('name') }}" 
+                    placeholder="Filter by name">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="start_date" class="form-control"
+                    value="{{ app.request.query.get('start_date') }}" 
+                    placeholder="Filter by start date">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="end_date" class="form-control"
+                    value="{{ app.request.query.get('end_date') }}" 
+                    placeholder="Filter by end date">
+            </div>
+            <div class="col-md-3">
+                <input type="text" name="staff" class="form-control"
+                    value="{{ app.request.query.get('staff') }}" 
+                    placeholder="Filter by staff">
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-info mt-2">Filter</button>
+        <a href="{{ path('exhibitions_index') }}" class="btn btn-outline-secondary mt-2 ms-2">Reset</a>
+    </form>
+
     <table class="table">
         <thead>
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Author</th>
-                <th>Creation Year</th>
-                <th>Exhibition</th>
+                <th>Start date</th>
+                <th>End date</th>
+                <th>Staff Members</th>
                 <th>Actions</th>
             </tr>
         </thead>

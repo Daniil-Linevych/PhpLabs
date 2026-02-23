@@ -29,7 +29,7 @@
             </tr>
             <tr>
                 <th>Email</th>
-                <td>{{ staff_member.user.email }}</td>
+                <td>{{ staff_member.user ? staff_member.user.email : 'N/A' }}</td>
             </tr>
             <tr>
                 <th>Salary</th>
